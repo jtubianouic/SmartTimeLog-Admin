@@ -1,0 +1,113 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+:root {
+  --background: #07100f;
+  --foreground: #edf8f5;
+  --panel: rgba(12, 29, 27, 0.72);
+  --line: rgba(152, 222, 207, 0.16);
+  --accent: #3de1c1;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sora);
+  --font-mono: var(--font-plex-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sora), sans-serif;
+  background-image:
+    linear-gradient(rgba(61, 225, 193, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(61, 225, 193, 0.025) 1px, transparent 1px),
+    linear-gradient(135deg, #07100f 0%, #0a1c1b 52%, #10191f 100%);
+  background-size: 48px 48px, 48px 48px, 100% 100%;
+  background-attachment: fixed;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: rgba(61, 225, 193, 0.28);
+}
+
+.glass-panel {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  box-shadow: 0 24px 70px rgba(0, 5, 5, 0.34);
+  backdrop-filter: blur(22px);
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise-in {
+  animation: rise-in 500ms ease-out both;
+}
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  background: #0b1716;
+  font-family: var(--font-sora), sans-serif;
+}
+
+.leaflet-control-attribution {
+  background: rgba(7, 16, 15, 0.82) !important;
+  color: #91aaa4;
+}
+
+.leaflet-control-attribution a {
+  color: #75e6d0;
+}
+
+.smart-map-marker {
+  background: transparent;
+  border: 0;
+}
+
+.smart-map-marker span {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border: 4px solid #dffcf6;
+  border-radius: 50% 50% 50% 0;
+  background: #12c5a5;
+  box-shadow: 0 8px 20px rgba(5, 30, 27, 0.55);
+  transform: rotate(-45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise-in {
+    animation: none;
+  }
+}

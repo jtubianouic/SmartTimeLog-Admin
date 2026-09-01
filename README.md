@@ -1,0 +1,49 @@
+# SmartTimeLog Admin
+
+Next.js admin dashboard for the existing SmartTimeLog Supabase project.
+
+## Environment
+
+Copy `.env.example` to `.env.local` and fill in the existing project values. Variables prefixed with `NEXT_PUBLIC_` are browser-safe. `SUPABASE_SERVICE_ROLE_KEY` and `AI_API_KEY` are server-only and must never be imported by Client Components or returned by an API.
+
+Maps use Leaflet with OpenStreetMap tiles, so no Google Maps key is needed. OpenStreetMap attribution must remain visible in every map.
+
+The existing Supabase schema, authentication, relationships, and RLS policies are the source of truth. This project does not create or reset database objects.
+
+## Getting Started
+
+Install dependencies and run the development server:
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+Before implementing data access, link the existing project and generate its database types:
+
+```bash
+npx.cmd supabase login
+npx.cmd supabase link --project-ref bkyedeokrypzamijzmxw
+New-Item -ItemType Directory -Force src/types
+npx.cmd supabase gen types typescript --linked | Set-Content src/types/database.ts
+```
+
+Run `npx supabase login` yourself in an interactive terminal. Never paste the personal access token into chat, source files, or `.env.local`.
+
+The interface uses Sora and IBM Plex Mono through `next/font`.
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
