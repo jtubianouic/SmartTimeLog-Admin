@@ -6,7 +6,7 @@ import type { Tables } from "@/types/database";
 
 export type Employee = Pick<
   Tables<"employee">,
-  "employee_id" | "username" | "firstname" | "lastname" | "created_at" | "updated_at" | "isDeleted"
+  "employee_id" | "username" | "firstname" | "lastname" | "hq_id" | "created_at" | "updated_at" | "isDeleted"
 >;
 export type Headquarters = Tables<"headquarters">;
 export type Timelog = Tables<"employee_timelogs">;
@@ -32,7 +32,7 @@ export async function getEmployees(search = "") {
   const supabase = createAdminClient();
   let query = supabase
     .from("employee")
-    .select("employee_id, username, firstname, lastname, created_at, updated_at, isDeleted")
+    .select("employee_id, username, firstname, lastname, hq_id, created_at, updated_at, isDeleted")
     .order("lastname", { ascending: true })
     .limit(100);
 
