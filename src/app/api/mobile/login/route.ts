@@ -1,5 +1,6 @@
 import { compare, hash } from "bcryptjs";
 import { z } from "zod";
+import { issueMobileToken, mobileTokenLifetimeSeconds } from "@/lib/mobile-api/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -59,9 +60,14 @@ export async function POST(request: Request) {
     );
   }
 
+  const accessToken = await issueMobileToken(employee.employee_id);
+
   return Response.json(
     {
       ok: true,
+      accessToken,
+      tokenType: "Bearer",
+      expiresIn: mobileTokenLifetimeSeconds,
       employee: {
         employeeId: employee.employee_id,
         username: employee.username,

@@ -15,7 +15,7 @@ export default async function TimelogsPage({ searchParams }: { searchParams: Pro
       <PageHeading eyebrow="Attendance activity" icon={Clock3} title="Timelogs" description="The latest 100 records are loaded from Supabase with server-side filters." />
       <form className="mt-6 flex flex-wrap gap-2">
         <select className="focus-ring h-11 rounded-md border border-white/10 bg-[#0b1b19] px-3 text-sm" defaultValue={filters.employee ?? ""} name="employee"><option value="">All employees</option>{employees.map((employee) => <option key={employee.employee_id} value={employee.employee_id}>{employeeName(employee)}</option>)}</select>
-        <select className="focus-ring h-11 rounded-md border border-white/10 bg-[#0b1b19] px-3 text-sm" defaultValue={filters.type ?? ""} name="type"><option value="">All log types</option><option value="clock_in">Clock in</option><option value="clock_out">Clock out</option></select>
+        <select className="focus-ring h-11 rounded-md border border-white/10 bg-[#0b1b19] px-3 text-sm" defaultValue={filters.type ?? ""} name="type"><option value="">All log types</option><option value="clock_in">Clock in</option><option value="break">Break</option><option value="clock_out">Clock out</option></select>
         <input aria-label="From date" className="focus-ring h-11 rounded-md border border-white/10 bg-[#0b1b19] px-3 text-sm" defaultValue={filters.from ?? ""} name="from" type="date" />
         <input aria-label="To date" className="focus-ring h-11 rounded-md border border-white/10 bg-[#0b1b19] px-3 text-sm" defaultValue={filters.to ?? ""} name="to" type="date" />
         <button className="focus-ring rounded-md bg-emerald-300 px-4 text-sm font-semibold text-emerald-950" type="submit">Apply filters</button>

@@ -58,7 +58,9 @@ Send employee credentials to `POST /api/mobile/login` as JSON:
 }
 ```
 
-A valid active employee receives HTTP `200` with `ok: true` and a password-safe employee profile. Invalid credentials and removed employees receive HTTP `401` with `ok: false`. Use HTTPS in production.
+A valid active employee receives HTTP `200` with `ok: true`, a password-safe employee profile, and a 12-hour bearer token. Invalid credentials and removed employees receive HTTP `401` with `ok: false`. Use HTTPS in production.
+
+Interactive Scalar documentation is available at `/api/docs`. The OpenAPI 3.1 document is available at `/api/openapi`.
 
 ```dart
 Future<Map<String, dynamic>?> login(
@@ -75,13 +77,16 @@ Future<Map<String, dynamic>?> login(
 	);
 
 	final body = jsonDecode(response.body) as Map<String, dynamic>;
-	return response.statusCode == 200 && body['ok'] == true
-			? body['employee'] as Map<String, dynamic>
-			: null;
+	return response.statusCode == 200 && body['ok'] == true ? body : null;
 }
 ```
 
-This endpoint verifies one login attempt. It does not issue a reusable access token for other protected mobile endpoints.
+Send `Authorization: Bearer <accessToken>` with calls to:
+
+- `POST /api/mobile/clock-in` with `lat` and `long`
+- `POST /api/mobile/break` with `lat` and `long`
+- `POST /api/mobile/clock-out` with `lat`, `long`, and `employeeInput`
+- `POST /api/mobile/ai-summary` with `employeeInput`; it returns a summary without saving it
 
 ## Learn More
 
