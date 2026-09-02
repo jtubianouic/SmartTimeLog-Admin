@@ -19,6 +19,7 @@ export type Database = {
           created_at: string | null
           employee_id: number
           firstname: string | null
+          hq_id: number | null
           isDeleted: boolean | null
           lastname: string | null
           password: string
@@ -29,6 +30,7 @@ export type Database = {
           created_at?: string | null
           employee_id?: number
           firstname?: string | null
+          hq_id?: number | null
           isDeleted?: boolean | null
           lastname?: string | null
           password: string
@@ -39,13 +41,22 @@ export type Database = {
           created_at?: string | null
           employee_id?: number
           firstname?: string | null
+          hq_id?: number | null
           isDeleted?: boolean | null
           lastname?: string | null
           password?: string
           updated_at?: string | null
           username?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "employee_hq_id_fkey"
+            columns: ["hq_id"]
+            isOneToOne: false
+            referencedRelation: "headquarters"
+            referencedColumns: ["hq_id"]
+          },
+        ]
       }
       employee_clock_out_logs: {
         Row: {
