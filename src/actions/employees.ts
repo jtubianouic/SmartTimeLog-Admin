@@ -65,3 +65,22 @@ export async function createEmployee(
   revalidatePath("/admin/employees");
   return { status: "success", message: "Employee registered successfully." };
 }
+
+export async function setEmployeeDeleted(formData: FormData) {
+  await requireAdmin();
+  const id = z.coerce.number().int().positive().safeParse(formData.get("employee_id"));
+  const isDeleted = z.enum(["true", "false"]).safeParse(formData.get("isDeleted"));
+  if (!id.success || !isDeleted.success) throw new Error("Invalid employee request.");
+
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("employee")
+    .update({ isDeleted: isDeleted.data === "true" })
+    .eq("employee_id", id.data);
+
+  if (error) throw new Error("Unable to update employee status.");
+  revalidatePath("/admin");
+  revalidatePath("/admin/employees");
+  revalidatePath("/admin/timelogs");
+  revalidatePath("/admin/summaries");
+}

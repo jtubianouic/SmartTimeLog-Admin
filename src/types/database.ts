@@ -19,6 +19,7 @@ export type Database = {
           created_at: string | null
           employee_id: number
           firstname: string | null
+          isDeleted: boolean | null
           lastname: string | null
           password: string
           updated_at: string | null
@@ -26,8 +27,9 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
-          employee_id?: never
+          employee_id?: number
           firstname?: string | null
+          isDeleted?: boolean | null
           lastname?: string | null
           password: string
           updated_at?: string | null
@@ -35,8 +37,9 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
-          employee_id?: never
+          employee_id?: number
           firstname?: string | null
+          isDeleted?: boolean | null
           lastname?: string | null
           password?: string
           updated_at?: string | null
@@ -116,20 +119,23 @@ export type Database = {
           created_at: string | null
           hq_id: number
           hq_name: string | null
+          isDeleted: boolean
           lat: number
           long: number
         }
         Insert: {
           created_at?: string | null
-          hq_id?: never
+          hq_id?: number
           hq_name?: string | null
+          isDeleted?: boolean
           lat: number
           long: number
         }
         Update: {
           created_at?: string | null
-          hq_id?: never
+          hq_id?: number
           hq_name?: string | null
+          isDeleted?: boolean
           lat?: number
           long?: number
         }

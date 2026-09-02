@@ -6,7 +6,7 @@ import type { Tables } from "@/types/database";
 
 export type Employee = Pick<
   Tables<"employee">,
-  "employee_id" | "username" | "firstname" | "lastname" | "created_at" | "updated_at"
+  "employee_id" | "username" | "firstname" | "lastname" | "created_at" | "updated_at" | "isDeleted"
 >;
 export type Headquarters = Tables<"headquarters">;
 export type Timelog = Tables<"employee_timelogs">;
@@ -32,7 +32,7 @@ export async function getEmployees(search = "") {
   const supabase = createAdminClient();
   let query = supabase
     .from("employee")
-    .select("employee_id, username, firstname, lastname, created_at, updated_at")
+    .select("employee_id, username, firstname, lastname, created_at, updated_at, isDeleted")
     .order("lastname", { ascending: true })
     .limit(100);
 
@@ -53,7 +53,7 @@ export async function getHeadquarters() {
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("headquarters")
-    .select("hq_id, hq_name, lat, long, created_at")
+    .select("hq_id, hq_name, lat, long, created_at, isDeleted")
     .order("hq_name", { ascending: true });
 
   if (error) throw new Error("Unable to load headquarters.");
@@ -119,8 +119,8 @@ export async function getDashboardData() {
   const todayLogs = timelogs.filter((log) => log.timestamp?.startsWith(today));
 
   return {
-    employeeCount: employees.length,
-    headquartersCount: headquarters.length,
+    employeeCount: employees.filter((employee) => employee.isDeleted !== true).length,
+    headquartersCount: headquarters.filter((hq) => !hq.isDeleted).length,
     todayClockIns: todayLogs.filter((log) => log.log_type.toLowerCase().includes("in")).length,
     todayClockOuts: todayLogs.filter((log) => log.log_type.toLowerCase().includes("out")).length,
     summaryCount: summaries.length,

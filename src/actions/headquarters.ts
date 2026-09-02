@@ -42,14 +42,18 @@ export async function createHeadquarters(
   return { status: "success", message: hq_id ? "Headquarters updated." : "Headquarters saved." };
 }
 
-export async function deleteHeadquarters(formData: FormData) {
+export async function setHeadquartersDeleted(formData: FormData) {
   await requireAdmin();
   const id = z.coerce.number().int().positive().safeParse(formData.get("hq_id"));
-  if (!id.success) return;
+  const isDeleted = z.enum(["true", "false"]).safeParse(formData.get("isDeleted"));
+  if (!id.success || !isDeleted.success) throw new Error("Invalid headquarters request.");
 
   const supabase = createAdminClient();
-  const { error } = await supabase.from("headquarters").delete().eq("hq_id", id.data);
-  if (error) throw new Error("Unable to delete headquarters.");
+  const { error } = await supabase
+    .from("headquarters")
+    .update({ isDeleted: isDeleted.data === "true" })
+    .eq("hq_id", id.data);
+  if (error) throw new Error("Unable to update headquarters status.");
 
   revalidatePath("/admin");
   revalidatePath("/admin/headquarters");
