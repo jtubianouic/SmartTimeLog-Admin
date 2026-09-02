@@ -1,6 +1,7 @@
 import "server-only";
 
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { distanceInMeters } from "@/lib/geofence";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Tables } from "@/types/database";
 
@@ -12,7 +13,11 @@ export type Headquarters = Tables<"headquarters">;
 export type Timelog = Tables<"employee_timelogs">;
 export type WorkSummary = Tables<"employee_clock_out_logs">;
 
-export type TimelogView = Timelog & { employee: Employee | null };
+export type TimelogView = Timelog & {
+  employee: Employee | null;
+  headquarters: Headquarters | null;
+  distanceFromHeadquartersMeters: number | null;
+};
 export type SummaryView = WorkSummary & {
   timelog: TimelogView | null;
 };
@@ -79,13 +84,27 @@ export async function getTimelogs(filters?: {
   if (filters?.from) query = query.gte("timestamp", `${filters.from}T00:00:00.000Z`);
   if (filters?.to) query = query.lte("timestamp", `${filters.to}T23:59:59.999Z`);
 
-  const [{ data: logs, error }, employees] = await Promise.all([query, getEmployees()]);
+  const [{ data: logs, error }, employees, headquarters] = await Promise.all([
+    query,
+    getEmployees(),
+    getHeadquarters(),
+  ]);
   if (error) throw new Error("Unable to load timelogs.");
   const byEmployee = mapEmployees(employees);
-  return logs.map((log) => ({
-    ...log,
-    employee: log.employee_id ? byEmployee.get(log.employee_id) ?? null : null,
-  }));
+  const headquartersById = new Map(headquarters.map((hq) => [hq.hq_id, hq]));
+  return logs.map((log) => {
+    const employee = log.employee_id ? byEmployee.get(log.employee_id) ?? null : null;
+    const assignedHeadquarters = employee?.hq_id ? headquartersById.get(employee.hq_id) ?? null : null;
+
+    return {
+      ...log,
+      employee,
+      headquarters: assignedHeadquarters,
+      distanceFromHeadquartersMeters: assignedHeadquarters
+        ? distanceInMeters(log, assignedHeadquarters)
+        : null,
+    };
+  });
 }
 
 export async function getSummaries() {

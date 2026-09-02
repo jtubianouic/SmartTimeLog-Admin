@@ -126,7 +126,7 @@ export const mobileOpenApiDocument = {
     "/api/mobile/clock-out": {
       post: {
         tags: ["Attendance"],
-        summary: "Clock out and save work input",
+        summary: "Clock out and save work input and AI summary",
         operationId: "clockOut",
         security: [{ bearerAuth: [] }],
         requestBody: {
@@ -213,10 +213,11 @@ export const mobileOpenApiDocument = {
       Location: locationSchema,
       ClockOutRequest: {
         ...locationSchema,
-        required: ["lat", "long", "employeeInput"],
+        required: ["lat", "long", "employeeInput", "aiSummary"],
         properties: {
           ...locationSchema.properties,
           employeeInput: { type: "string", minLength: 1, maxLength: 10000 },
+          aiSummary: { type: "string", minLength: 1, maxLength: 2000 },
         },
       },
       Timelog: {

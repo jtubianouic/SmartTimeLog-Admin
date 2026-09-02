@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import L from "leaflet";
-import { MapContainer, Marker, TileLayer, Tooltip, useMap, useMapEvents } from "react-leaflet";
+import { Circle, MapContainer, Marker, TileLayer, Tooltip, useMap, useMapEvents } from "react-leaflet";
 import type { Coordinates } from "@/lib/validations/location";
 
 const markerIcon = L.divIcon({
@@ -66,6 +66,7 @@ export default function InteractiveMap({
   onChange,
   readOnly = false,
   headquarters = [],
+  geofence,
   selectedId,
   selectedName,
 }: {
@@ -73,6 +74,7 @@ export default function InteractiveMap({
   onChange: (coordinates: Coordinates) => void;
   readOnly?: boolean;
   headquarters?: HeadquartersMarker[];
+  geofence?: Coordinates & { radiusMeters: number };
   selectedId?: number;
   selectedName?: string;
 }) {
@@ -84,6 +86,13 @@ export default function InteractiveMap({
       />
       {!readOnly ? <MapInteraction onChange={onChange} /> : null}
       <MapPosition coordinates={coordinates} headquarters={headquarters} selectedId={selectedId} />
+      {geofence ? (
+        <Circle
+          center={[geofence.lat, geofence.lng]}
+          pathOptions={{ color: "#3de1c1", fillColor: "#3de1c1", fillOpacity: 0.12, weight: 2 }}
+          radius={geofence.radiusMeters}
+        />
+      ) : null}
       {headquarters
         .filter((headquartersMarker) => headquartersMarker.id !== selectedId)
         .map((headquartersMarker) => (

@@ -8,6 +8,7 @@ export const runtime = "nodejs";
 
 const clockOutSchema = coordinatesSchema.extend({
   employeeInput: z.string().trim().min(1).max(10_000),
+  aiSummary: z.string().trim().min(1).max(2_000),
 });
 
 export async function POST(request: Request) {
@@ -15,9 +16,9 @@ export async function POST(request: Request) {
   if (!employee) return apiError(401, "Authentication required.");
 
   const parsed = await parseJson(request, clockOutSchema);
-  if (!parsed?.success) return apiError(400, "Location and employee input are required.");
+  if (!parsed?.success) return apiError(400, "Location, employee input, and AI summary are required.");
 
-  const { employeeInput, ...coordinates } = parsed.data;
+  const { employeeInput, aiSummary, ...coordinates } = parsed.data;
   const result = await recordAttendance(employee.employee_id, "clock_out", coordinates);
   if (result.error === "invalid_transition") return apiError(409, "Clock-out requires an active clock-in.");
   if (result.error) return apiError(503, "Unable to record clock-out.");
@@ -25,7 +26,11 @@ export async function POST(request: Request) {
   const supabase = createAdminClient();
   const { data: clockOutLog, error } = await supabase
     .from("employee_clock_out_logs")
-    .insert({ timelog_id: result.timelog.timelog_id, employee_input: employeeInput })
+    .insert({
+      timelog_id: result.timelog.timelog_id,
+      employee_input: employeeInput,
+      employee_ai_summary: aiSummary,
+    })
     .select("log_id, timelog_id, employee_input, employee_ai_summary, created_at")
     .single();
 

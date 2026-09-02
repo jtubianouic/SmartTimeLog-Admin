@@ -87,7 +87,7 @@ Send `Authorization: Bearer <accessToken>` with calls to:
 - `POST /api/mobile/clock-in` with `lat` and `long`
 - `POST /api/mobile/break` with `lat` and `long`
 - `POST /api/mobile/break/end` with `lat` and `long`; returns `409` unless the employee is on break
-- `POST /api/mobile/clock-out` with `lat`, `long`, and `employeeInput`
+- `POST /api/mobile/clock-out` with `lat`, `long`, `employeeInput`, and `aiSummary`; both work fields are saved
 - `POST /api/mobile/ai-summary` with `employeeInput`; it returns a summary without saving it
 
 ## Learn More
