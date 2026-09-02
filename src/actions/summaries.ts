@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { summarizeWorkInput } from "@/lib/ai/gemini";
+import { summarizeWorkInput } from "@/lib/ai/summary";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 

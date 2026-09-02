@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { summarizeWorkInput } from "@/lib/ai/gemini";
+import { summarizeWorkInput } from "@/lib/ai/summary";
 import { authenticateMobileRequest } from "@/lib/mobile-api/auth";
 import { apiError, noStoreHeaders, parseJson } from "@/lib/mobile-api/http";
 

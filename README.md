@@ -8,6 +8,8 @@ Copy `.env.example` to `.env.local` and fill in the existing project values. Var
 
 Maps use Leaflet with OpenStreetMap tiles, so no Google Maps key is needed. OpenStreetMap attribution must remain visible in every map.
 
+Work summaries use Gemini when `AI_API_KEY` is configured and available, then automatically fall back to Groq through `GROQ_API_KEY`. `GEMINI_MODEL` and `GROQ_MODEL` can override the default models.
+
 The existing Supabase schema, authentication, relationships, and RLS policies are the source of truth. This project does not create or reset database objects.
 
 ## Getting Started
