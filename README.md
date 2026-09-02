@@ -47,6 +47,42 @@ npm.cmd run admin:create -- -Email another-admin@example.com
 
 The interface uses Sora and IBM Plex Mono through `next/font`.
 
+## Flutter Employee Login
+
+Send employee credentials to `POST /api/mobile/login` as JSON:
+
+```json
+{
+	"username": "employee.username",
+	"plainPassword": "employee password"
+}
+```
+
+A valid active employee receives HTTP `200` with `ok: true` and a password-safe employee profile. Invalid credentials and removed employees receive HTTP `401` with `ok: false`. Use HTTPS in production.
+
+```dart
+Future<Map<String, dynamic>?> login(
+	String username,
+	String plainPassword,
+) async {
+	final response = await http.post(
+		Uri.parse('$apiBaseUrl/api/mobile/login'),
+		headers: {'Content-Type': 'application/json'},
+		body: jsonEncode({
+			'username': username,
+			'plainPassword': plainPassword,
+		}),
+	);
+
+	final body = jsonDecode(response.body) as Map<String, dynamic>;
+	return response.statusCode == 200 && body['ok'] == true
+			? body['employee'] as Map<String, dynamic>
+			: null;
+}
+```
+
+This endpoint verifies one login attempt. It does not issue a reusable access token for other protected mobile endpoints.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
