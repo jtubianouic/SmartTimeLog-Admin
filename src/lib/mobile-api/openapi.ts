@@ -80,6 +80,23 @@ export const mobileOpenApiDocument = {
         responses: attendanceResponses,
       },
     },
+    "/api/mobile/status": {
+      get: {
+        tags: ["Attendance"],
+        summary: "Get today's attendance status",
+        description: "Returns the employee's latest attendance state for the current UTC day.",
+        operationId: "getAttendanceStatus",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": {
+            description: "Current-day attendance status.",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/StatusResponse" } } },
+          },
+          "401": { $ref: "#/components/responses/Unauthorized" },
+          "503": { $ref: "#/components/responses/Unavailable" },
+        },
+      },
+    },
     "/api/mobile/break": {
       post: {
         tags: ["Attendance"],
@@ -216,6 +233,21 @@ export const mobileOpenApiDocument = {
               employee_ai_summary: { type: ["string", "null"] },
               created_at: { type: ["string", "null"], format: "date-time" },
             },
+          },
+        },
+      },
+      StatusResponse: {
+        type: "object",
+        required: ["ok", "date", "status", "latestTimelog"],
+        properties: {
+          ok: { type: "boolean", const: true },
+          date: { type: "string", format: "date", description: "Current UTC date." },
+          status: {
+            type: "string",
+            enum: ["not_clocked_in", "clocked_in", "on_break", "clocked_out"],
+          },
+          latestTimelog: {
+            oneOf: [{ $ref: "#/components/schemas/Timelog" }, { type: "null" }],
           },
         },
       },

@@ -83,6 +83,7 @@ Future<Map<String, dynamic>?> login(
 
 Send `Authorization: Bearer <accessToken>` with calls to:
 
+- `GET /api/mobile/status` returns today's `not_clocked_in`, `clocked_in`, `on_break`, or `clocked_out` state
 - `POST /api/mobile/clock-in` with `lat` and `long`
 - `POST /api/mobile/break` with `lat` and `long`
 - `POST /api/mobile/clock-out` with `lat`, `long`, and `employeeInput`
