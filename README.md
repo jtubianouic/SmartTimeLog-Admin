@@ -31,6 +31,20 @@ npx.cmd supabase gen types typescript --linked | Set-Content src/types/database.
 
 Run `npx supabase login` yourself in an interactive terminal. Never paste the personal access token into chat, source files, or `.env.local`.
 
+## Bootstrap an Administrator
+
+After configuring a valid server-only `SUPABASE_SERVICE_ROLE_KEY=sb_secret_...`, create the initial Supabase Auth administrator with:
+
+```powershell
+npm.cmd run admin:create
+```
+
+The script defaults to `admin@smarttimelog.com`, prompts for the password securely, confirms the email, and sets `app_metadata.role` to `admin`. It does not store the password in an application table. To use another email:
+
+```powershell
+npm.cmd run admin:create -- -Email another-admin@example.com
+```
+
 The interface uses Sora and IBM Plex Mono through `next/font`.
 
 ## Learn More

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import L from "leaflet";
-import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { MapContainer, Marker, TileLayer, Tooltip, useMap, useMapEvents } from "react-leaflet";
 import type { Coordinates } from "@/lib/validations/location";
 
 const markerIcon = L.divIcon({
@@ -11,6 +11,20 @@ const markerIcon = L.divIcon({
   iconAnchor: [11, 22],
   iconSize: [22, 22],
 });
+
+const savedMarkerIcon = L.divIcon({
+  className: "smart-map-marker saved-hq-marker",
+  html: "<span></span>",
+  iconAnchor: [11, 22],
+  iconSize: [22, 22],
+});
+
+export type HeadquartersMarker = {
+  id: number;
+  name: string;
+  lat: number;
+  lng: number;
+};
 
 function MapInteraction({ onChange }: { onChange: (coordinates: Coordinates) => void }) {
   useMapEvents({
@@ -21,12 +35,28 @@ function MapInteraction({ onChange }: { onChange: (coordinates: Coordinates) => 
   return null;
 }
 
-function MapPosition({ coordinates }: { coordinates: Coordinates }) {
+function MapPosition({
+  coordinates,
+  headquarters,
+  selectedId,
+}: {
+  coordinates: Coordinates;
+  headquarters: HeadquartersMarker[];
+  selectedId?: number;
+}) {
   const map = useMap();
 
   useEffect(() => {
+    if (!selectedId && headquarters.length > 0) {
+      const points = [
+        ...headquarters.map((hq) => L.latLng(hq.lat, hq.lng)),
+        L.latLng(coordinates.lat, coordinates.lng),
+      ];
+      map.fitBounds(L.latLngBounds(points), { padding: [42, 42], maxZoom: 16 });
+      return;
+    }
     map.panTo([coordinates.lat, coordinates.lng]);
-  }, [coordinates.lat, coordinates.lng, map]);
+  }, [coordinates.lat, coordinates.lng, headquarters, map, selectedId]);
 
   return null;
 }
@@ -34,9 +64,17 @@ function MapPosition({ coordinates }: { coordinates: Coordinates }) {
 export default function InteractiveMap({
   coordinates,
   onChange,
+  readOnly = false,
+  headquarters = [],
+  selectedId,
+  selectedName,
 }: {
   coordinates: Coordinates;
   onChange: (coordinates: Coordinates) => void;
+  readOnly?: boolean;
+  headquarters?: HeadquartersMarker[];
+  selectedId?: number;
+  selectedName?: string;
 }) {
   return (
     <MapContainer center={[coordinates.lat, coordinates.lng]} className="h-full w-full" scrollWheelZoom zoom={16}>
@@ -44,10 +82,23 @@ export default function InteractiveMap({
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <MapInteraction onChange={onChange} />
-      <MapPosition coordinates={coordinates} />
+      {!readOnly ? <MapInteraction onChange={onChange} /> : null}
+      <MapPosition coordinates={coordinates} headquarters={headquarters} selectedId={selectedId} />
+      {headquarters
+        .filter((headquartersMarker) => headquartersMarker.id !== selectedId)
+        .map((headquartersMarker) => (
+          <Marker
+            icon={savedMarkerIcon}
+            key={headquartersMarker.id}
+            position={[headquartersMarker.lat, headquartersMarker.lng]}
+          >
+            <Tooltip direction="top" offset={[0, -20]} permanent>
+              {headquartersMarker.name}
+            </Tooltip>
+          </Marker>
+        ))}
       <Marker
-        draggable
+        draggable={!readOnly}
         eventHandlers={{
           dragend(event) {
             const position = event.target.getLatLng();
@@ -56,7 +107,9 @@ export default function InteractiveMap({
         }}
         icon={markerIcon}
         position={[coordinates.lat, coordinates.lng]}
-      />
+      >
+        {selectedName ? <Tooltip direction="top" offset={[0, -20]} permanent>{selectedName}</Tooltip> : null}
+      </Marker>
     </MapContainer>
   );
 }

@@ -106,6 +106,24 @@ a {
   transform: rotate(-45deg);
 }
 
+.saved-hq-marker span {
+  background: #43a9ee;
+}
+
+.leaflet-tooltip {
+  border: 1px solid rgba(152, 222, 207, 0.28) !important;
+  border-radius: 4px !important;
+  background: rgba(7, 16, 15, 0.9) !important;
+  box-shadow: 0 8px 20px rgba(0, 5, 5, 0.35) !important;
+  color: #edf8f5 !important;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.leaflet-tooltip-top::before {
+  border-top-color: rgba(7, 16, 15, 0.9) !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rise-in {
     animation: none;
