@@ -83,9 +83,10 @@ Future<Map<String, dynamic>?> login(
 
 Send `Authorization: Bearer <accessToken>` with calls to:
 
-- `GET /api/mobile/status` returns today's `not_clocked_in`, `clocked_in`, `on_break`, or `clocked_out` state
+- `GET /api/mobile/status` returns today's state plus `clockedInDurationSeconds`, total `breakDurationSeconds`, and active `currentBreakDurationSeconds`
 - `POST /api/mobile/clock-in` with `lat` and `long`
 - `POST /api/mobile/break` with `lat` and `long`
+- `POST /api/mobile/break/end` with `lat` and `long`; returns `409` unless the employee is on break
 - `POST /api/mobile/clock-out` with `lat`, `long`, and `employeeInput`
 - `POST /api/mobile/ai-summary` with `employeeInput`; it returns a summary without saving it
 

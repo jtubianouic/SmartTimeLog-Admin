@@ -110,6 +110,19 @@ export const mobileOpenApiDocument = {
         responses: attendanceResponses,
       },
     },
+    "/api/mobile/break/end": {
+      post: {
+        tags: ["Attendance"],
+        summary: "End the current break",
+        operationId: "endBreak",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: { "application/json": { schema: { $ref: "#/components/schemas/Location" } } },
+        },
+        responses: attendanceResponses,
+      },
+    },
     "/api/mobile/clock-out": {
       post: {
         tags: ["Attendance"],
@@ -212,7 +225,7 @@ export const mobileOpenApiDocument = {
         properties: {
           timelog_id: { type: "integer" },
           employee_id: { type: ["integer", "null"] },
-          log_type: { type: "string", enum: ["clock_in", "break", "clock_out"] },
+          log_type: { type: "string", enum: ["clock_in", "break", "break_end", "clock_out"] },
           lat: { type: "number" },
           long: { type: "number" },
           timestamp: { type: ["string", "null"], format: "date-time" },
@@ -238,13 +251,36 @@ export const mobileOpenApiDocument = {
       },
       StatusResponse: {
         type: "object",
-        required: ["ok", "date", "status", "latestTimelog"],
+        required: [
+          "ok",
+          "date",
+          "status",
+          "clockedInDurationSeconds",
+          "breakDurationSeconds",
+          "currentBreakDurationSeconds",
+          "latestTimelog",
+        ],
         properties: {
           ok: { type: "boolean", const: true },
           date: { type: "string", format: "date", description: "Current UTC date." },
           status: {
             type: "string",
             enum: ["not_clocked_in", "clocked_in", "on_break", "clocked_out"],
+          },
+          clockedInDurationSeconds: {
+            type: "integer",
+            minimum: 0,
+            description: "Gross seconds elapsed since clock-in, capped at clock-out.",
+          },
+          breakDurationSeconds: {
+            type: "integer",
+            minimum: 0,
+            description: "Total seconds spent on breaks today, including an active break.",
+          },
+          currentBreakDurationSeconds: {
+            type: "integer",
+            minimum: 0,
+            description: "Seconds elapsed in the active break, or zero when not on break.",
           },
           latestTimelog: {
             oneOf: [{ $ref: "#/components/schemas/Timelog" }, { type: "null" }],
