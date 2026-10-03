@@ -84,7 +84,7 @@ export const mobileOpenApiDocument = {
       get: {
         tags: ["Attendance"],
         summary: "Get today's attendance status",
-        description: "Returns the employee's latest attendance state for the current UTC day.",
+        description: "Returns the employee's latest attendance state for the current UTC day and complete timelog history ordered newest first.",
         operationId: "getAttendanceStatus",
         security: [{ bearerAuth: [] }],
         responses: {
@@ -260,6 +260,7 @@ export const mobileOpenApiDocument = {
           "breakDurationSeconds",
           "currentBreakDurationSeconds",
           "latestTimelog",
+          "timelogs",
         ],
         properties: {
           ok: { type: "boolean", const: true },
@@ -285,6 +286,11 @@ export const mobileOpenApiDocument = {
           },
           latestTimelog: {
             oneOf: [{ $ref: "#/components/schemas/Timelog" }, { type: "null" }],
+          },
+          timelogs: {
+            type: "array",
+            description: "The authenticated employee's complete timelog history, ordered newest first.",
+            items: { $ref: "#/components/schemas/Timelog" },
           },
         },
       },

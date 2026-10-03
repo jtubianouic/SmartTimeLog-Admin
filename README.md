@@ -64,6 +64,8 @@ A valid active employee receives HTTP `200` with `ok: true`, a password-safe emp
 
 Interactive Scalar documentation is available at `/api/docs`. The OpenAPI 3.1 document is available at `/api/openapi`.
 
+Authenticated calls to `GET /api/mobile/status` include the employee's complete timelog history ordered newest first.
+
 ```dart
 Future<Map<String, dynamic>?> login(
 	String username,

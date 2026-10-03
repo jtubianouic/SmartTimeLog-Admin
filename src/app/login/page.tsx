@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Activity, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { LoginForm } from "@/components/auth/login-form";
+import { BrandIcon } from "@/components/brand-icon";
 
 export const metadata: Metadata = { title: "Admin sign in" };
 
@@ -10,7 +11,7 @@ export default function LoginPage() {
       <section className="hidden min-h-screen border-r border-white/8 px-14 py-12 lg:flex lg:flex-col lg:justify-between">
         <div className="flex items-center gap-3">
           <span className="grid size-10 place-items-center rounded-md border border-emerald-200/20 bg-emerald-300/10">
-            <Activity className="size-5 text-emerald-300" />
+            <BrandIcon className="size-8 object-contain" priority />
           </span>
           <span className="font-semibold">SmartTimeLog</span>
         </div>
@@ -29,7 +30,7 @@ export default function LoginPage() {
       <section className="flex min-h-screen items-center justify-center px-5 py-12 sm:px-10">
         <div className="glass-panel rise-in w-full max-w-md rounded-lg p-6 sm:p-9">
           <div className="flex items-center gap-3 lg:hidden">
-            <Activity className="size-5 text-emerald-300" />
+            <BrandIcon className="size-7 object-contain" priority />
             <span className="font-semibold">SmartTimeLog</span>
           </div>
           <div className="mt-12 lg:mt-0">

@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Activity, Building2, Clock3, FileText, LayoutDashboard, LogOut, Menu, Settings, Users, X } from "lucide-react";
+import { Building2, Clock3, FileText, LayoutDashboard, LogOut, Menu, Settings, Users, X } from "lucide-react";
 import { logout } from "@/actions/auth";
+import { BrandIcon } from "@/components/brand-icon";
 
 const links = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -23,7 +24,7 @@ export function AdminNav({ email }: { email: string }) {
       <div className="flex h-20 items-center justify-between border-b border-white/8 px-5">
         <Link className="focus-ring flex items-center gap-3" href="/admin">
           <span className="grid size-9 place-items-center rounded-md border border-emerald-200/20 bg-emerald-300/10">
-            <Activity className="size-5 text-emerald-300" />
+            <BrandIcon className="size-7 object-contain" priority />
           </span>
           <span className="font-semibold text-white">SmartTimeLog</span>
         </Link>
@@ -55,7 +56,7 @@ export function AdminNav({ email }: { email: string }) {
   return (
     <>
       <header className="fixed inset-x-0 top-0 z-30 flex h-16 items-center justify-between border-b border-white/8 bg-[#07100f]/90 px-4 backdrop-blur-xl lg:hidden">
-        <div className="flex items-center gap-2 font-semibold"><Activity className="size-5 text-emerald-300" /> SmartTimeLog</div>
+        <div className="flex items-center gap-2 font-semibold"><BrandIcon className="size-7 object-contain" priority /> SmartTimeLog</div>
         <button className="focus-ring grid size-10 place-items-center" onClick={() => setOpen(true)} title="Open navigation" type="button"><Menu className="size-5" /></button>
       </header>
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-white/8 bg-[#081312]/92 backdrop-blur-2xl lg:flex lg:flex-col">{navigation}</aside>

@@ -20,6 +20,11 @@ export const metadata: Metadata = {
     template: "%s | SmartTimeLog",
   },
   description: "Secure administration for SmartTimeLog operations.",
+  icons: {
+    icon: "/smarttimelog.png",
+    shortcut: "/smarttimelog.png",
+    apple: "/smarttimelog.png",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

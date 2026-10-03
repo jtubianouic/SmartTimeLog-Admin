@@ -75,6 +75,19 @@ export async function getAttendanceStatus(employeeId: number) {
   };
 }
 
+export async function getTimelogHistory(employeeId: number) {
+  const supabase = createAdminClient();
+  const { data: timelogs, error } = await supabase
+    .from("employee_timelogs")
+    .select("timelog_id, employee_id, log_type, lat, long, timestamp")
+    .eq("employee_id", employeeId)
+    .order("timestamp", { ascending: false, nullsFirst: false })
+    .order("timelog_id", { ascending: false });
+
+  if (error) return { error: "unavailable" as const };
+  return { timelogs };
+}
+
 export async function recordAttendance(
   employeeId: number,
   logType: AttendanceType,
