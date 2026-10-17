@@ -50,18 +50,40 @@ export function readRegistrationApprovalToken(token: string): ApprovalPayload | 
 
 export async function getRegistrationApprovalStatus(token: string) {
   const payload = readRegistrationApprovalToken(token);
-  if (!payload) return "invalid" as const;
+  if (!payload) return { status: "invalid" as const };
 
-  const { data, error } = await createAdminClient()
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
     .from("employee")
-    .select("created_at, isPending, isDeleted")
+    .select("employee_id, firstname, lastname, username, hq_id, created_at, isPending, isDeleted")
     .eq("employee_id", payload.employeeId)
     .maybeSingle();
   if (error) throw new Error("Unable to check registration approval.");
   if (!data || data.created_at !== payload.createdAt || data.isDeleted === true || data.isPending !== true) {
-    return "unavailable" as const;
+    return { status: "unavailable" as const };
   }
-  return "pending" as const;
+
+  let headquarters = "Unassigned";
+  if (data.hq_id) {
+    const { data: hq, error: hqError } = await supabase
+      .from("headquarters")
+      .select("hq_name")
+      .eq("hq_id", data.hq_id)
+      .maybeSingle();
+    if (hqError) throw new Error("Unable to check registration headquarters.");
+    headquarters = hq?.hq_name || `Headquarters #${data.hq_id}`;
+  }
+
+  return {
+    status: "pending" as const,
+    employee: {
+      id: data.employee_id,
+      name: [data.firstname, data.lastname].filter(Boolean).join(" ") || "Not provided",
+      username: data.username,
+      headquarters,
+      registeredAt: data.created_at,
+    },
+  };
 }
 
 export async function approveRegistrationWithToken(token: string) {

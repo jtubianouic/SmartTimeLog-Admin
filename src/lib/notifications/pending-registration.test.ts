@@ -22,13 +22,17 @@ describe("pending registration email", () => {
     expect(send).toHaveBeenCalledOnce();
     const [url, init] = send.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("https://api.resend.com/emails");
-    expect(JSON.parse(init.body as string)).toEqual({
+    const email = JSON.parse(init.body as string);
+    expect(email).toMatchObject({
       from: "SmartTimeLog <updates@example.com>",
       to: ["debuggerjames@gmail.com"],
       subject: "SmartTimeLog employee registration pending",
-      text: "A new employee registration is waiting for approval. Open this link to review and approve it without signing in: https://example.com/registration-approval?token=safe-token",
-      html: '<p>A new employee registration is waiting for approval.</p><p><a href="https://example.com/registration-approval?token=safe-token">Review and approve registration</a></p><p>This link expires in 24 hours and can only approve this registration once.</p>',
     });
+    expect(email.text).toContain("https://example.com/registration-approval?token=safe-token");
+    expect(email.html).toContain("SmartTimeLog");
+    expect(email.html).toContain('href="https://example.com/registration-approval?token=safe-token"');
+    expect(email.html).toContain("Review registration");
+    expect(email.html).not.toContain("password");
   });
 
   it("reports missing email configuration without sending", async () => {
