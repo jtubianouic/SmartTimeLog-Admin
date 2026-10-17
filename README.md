@@ -49,6 +49,23 @@ npm.cmd run admin:create -- -Email another-admin@example.com
 
 The interface uses Sora and IBM Plex Mono through `next/font`.
 
+## Employee registration API
+
+An administrator can open **Employees → Register employee** to display the current registration QR code. The authenticated `GET /api/admin/registration-qr` endpoint supplies that code and its expiry. Scan the QR to obtain its 64-character token, then send it to `POST /api/mobile/register`:
+
+```json
+{
+  "registrationToken": "64-character lowercase hex token from the QR code",
+  "firstName": "Ada",
+  "lastName": "Lovelace",
+  "username": "ada.lovelace",
+  "plainPassword": "employee password",
+  "headquartersId": 1
+}
+```
+
+The token must match the current database token and be unexpired. A successful request creates a **pending** employee and returns HTTP `201` with `isPending: true`. Invalid or expired tokens return `401`; duplicate usernames return `409`. An administrator approves the account from **Employees → Pending**; the employee can then sign in with `POST /api/mobile/login`. Employees created directly from the administrator form are active immediately. Both endpoints are described at `/api/docs`.
+
 ## Flutter Employee Login
 
 Send employee credentials to `POST /api/mobile/login` as JSON:

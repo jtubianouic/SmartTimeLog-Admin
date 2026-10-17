@@ -21,8 +21,10 @@ export type Database = {
           firstname: string | null
           hq_id: number | null
           isDeleted: boolean | null
+          isPending: boolean | null
           lastname: string | null
           password: string
+          registration_access_token: string | null
           updated_at: string | null
           username: string
         }
@@ -32,8 +34,10 @@ export type Database = {
           firstname?: string | null
           hq_id?: number | null
           isDeleted?: boolean | null
+          isPending?: boolean | null
           lastname?: string | null
           password: string
+          registration_access_token?: string | null
           updated_at?: string | null
           username: string
         }
@@ -43,8 +47,10 @@ export type Database = {
           firstname?: string | null
           hq_id?: number | null
           isDeleted?: boolean | null
+          isPending?: boolean | null
           lastname?: string | null
           password?: string
+          registration_access_token?: string | null
           updated_at?: string | null
           username?: string
         }
@@ -149,6 +155,30 @@ export type Database = {
           isDeleted?: boolean
           lat?: number
           long?: number
+        }
+        Relationships: []
+      }
+      registration_access_token: {
+        Row: {
+          id: number
+          token: string
+          expiration_date: string
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: number
+          token: string
+          expiration_date: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: number
+          token?: string
+          expiration_date?: string
+          created_at?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }

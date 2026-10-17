@@ -38,11 +38,11 @@ export async function authenticateMobileRequest(request: Request) {
     const supabase = createAdminClient();
     const { data: employee, error } = await supabase
       .from("employee")
-      .select("employee_id, username, firstname, lastname, hq_id, isDeleted")
+      .select("employee_id, username, firstname, lastname, hq_id, isDeleted, isPending")
       .eq("employee_id", employeeId)
       .maybeSingle();
 
-    if (error || !employee || employee.isDeleted === true) return null;
+    if (error || !employee || employee.isDeleted === true || employee.isPending === true) return null;
     return employee;
   } catch {
     return null;

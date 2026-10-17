@@ -37,7 +37,7 @@ export async function POST(request: Request) {
   const supabase = createAdminClient();
   const { data: employee, error } = await supabase
     .from("employee")
-    .select("employee_id, username, password, firstname, lastname, hq_id, isDeleted, headquarters(hq_id, hq_name, lat, long)")
+    .select("employee_id, username, password, firstname, lastname, hq_id, isDeleted, isPending, headquarters(hq_id, hq_name, lat, long)")
     .eq("username", parsed.data.username)
     .maybeSingle();
 
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     employee?.password ?? (await dummyPasswordHash),
   );
 
-  if (!employee || !passwordMatches || employee.isDeleted === true) {
+  if (!employee || !passwordMatches || employee.isDeleted === true || employee.isPending === true) {
     return Response.json(
       { ok: false, message: "Invalid username or password." },
       { status: 401, headers: responseHeaders },

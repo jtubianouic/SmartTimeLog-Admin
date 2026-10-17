@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Pencil, UserPlus, X } from "lucide-react";
 import { toast } from "sonner";
 import { createEmployee, type EmployeeState } from "@/actions/employees";
+import { RegistrationQr } from "@/components/employees/registration-qr";
 
 const fields = [
   { name: "firstname", label: "First name", type: "text", autoComplete: "given-name" },
@@ -44,6 +45,7 @@ export function EmployeeForm({ headquarters, selected }: { headquarters: Headqua
       <summary className="focus-ring flex cursor-pointer list-none items-center gap-2 px-5 py-4 text-sm font-semibold text-white">
         {selected ? <Pencil className="size-4 text-emerald-300" /> : <UserPlus className="size-4 text-emerald-300" />} {selected ? "Edit employee" : "Register employee"}
       </summary>
+      {!selected ? <RegistrationQr /> : null}
       <form action={action} className="grid gap-4 border-t border-white/8 p-5 sm:grid-cols-2" ref={formRef}>
         {selected ? <input name="employee_id" type="hidden" value={selected.employee_id} /> : null}
         {fields.map((field) => (

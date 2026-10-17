@@ -30,22 +30,62 @@ const attendanceResponses = {
 export const mobileOpenApiDocument = {
   openapi: "3.1.0",
   info: {
-    title: "SmartTimeLog Mobile API",
+    title: "SmartTimeLog API",
     version: "1.0.0",
     description:
-      "Employee authentication, attendance, break tracking, clock-out work input, and AI summaries. Send the login token as `Authorization: Bearer <token>`.",
+      "Employee registration, authentication, attendance, break tracking, clock-out work input, and AI summaries. Send the login token as `Authorization: Bearer <token>` to protected mobile endpoints.",
   },
   servers: [{ url: "/", description: "Current SmartTimeLog deployment" }],
   tags: [
+    { name: "Registration" },
     { name: "Authentication" },
     { name: "Attendance" },
     { name: "AI" },
   ],
   paths: {
+    "/api/admin/registration-qr": {
+      get: {
+        tags: ["Registration"],
+        summary: "Get the current employee registration QR code",
+        description: "Requires an authenticated administrator session. Returns a PNG data URL whose QR content is the current 30-minute registration token. Creates or rotates the singleton database token when needed.",
+        operationId: "getRegistrationQr",
+        responses: {
+          "200": {
+            description: "Current registration QR code and expiry.",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/RegistrationQrResponse" } } },
+          },
+          "307": { description: "Administrator session is missing; redirects to login." },
+          "503": { $ref: "#/components/responses/Unavailable" },
+        },
+      },
+    },
+    "/api/mobile/register": {
+      post: {
+        tags: ["Registration"],
+        summary: "Register an employee with a QR token",
+        description: "Submit the 64-character token encoded in the administrator's QR code before its expiry. A successful registration creates a pending employee account. An administrator must approve it before the employee can log in.",
+        operationId: "registerEmployee",
+        requestBody: {
+          required: true,
+          content: { "application/json": { schema: { $ref: "#/components/schemas/RegistrationRequest" } } },
+        },
+        responses: {
+          "201": {
+            description: "Employee registration is pending administrator approval.",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/RegistrationResponse" } } },
+          },
+          "400": { $ref: "#/components/responses/BadRequest" },
+          "401": { $ref: "#/components/responses/Unauthorized" },
+          "409": { $ref: "#/components/responses/Conflict" },
+          "503": { $ref: "#/components/responses/Unavailable" },
+        },
+      },
+    },
     "/api/mobile/login": {
       post: {
         tags: ["Authentication"],
         summary: "Authenticate employee",
+        description: "Pending registrations cannot log in until an administrator approves the employee.",
         operationId: "loginEmployee",
         requestBody: {
           required: true,
@@ -169,6 +209,36 @@ export const mobileOpenApiDocument = {
       },
     },
     schemas: {
+      RegistrationQrResponse: {
+        type: "object",
+        required: ["qrCode", "expiresAt"],
+        properties: {
+          qrCode: { type: "string", description: "PNG data URL containing the current registration token." },
+          expiresAt: { type: "string", format: "date-time" },
+        },
+      },
+      RegistrationRequest: {
+        type: "object",
+        additionalProperties: false,
+        required: ["registrationToken", "firstName", "lastName", "username", "plainPassword", "headquartersId"],
+        properties: {
+          registrationToken: { type: "string", pattern: "^[0-9a-f]{64}$", description: "Raw token decoded from the QR code." },
+          firstName: { type: "string", minLength: 1, maxLength: 80 },
+          lastName: { type: "string", minLength: 1, maxLength: 80 },
+          username: { type: "string", minLength: 3, maxLength: 80 },
+          plainPassword: { type: "string", minLength: 8, maxLength: 128, format: "password" },
+          headquartersId: { type: "integer", minimum: 1 },
+        },
+      },
+      RegistrationResponse: {
+        type: "object",
+        required: ["ok", "isPending", "employee"],
+        properties: {
+          ok: { type: "boolean", const: true },
+          isPending: { type: "boolean", const: true },
+          employee: { $ref: "#/components/schemas/Employee" },
+        },
+      },
       LoginRequest: {
         type: "object",
         additionalProperties: false,
@@ -320,7 +390,7 @@ export const mobileOpenApiDocument = {
         content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } },
       },
       Conflict: {
-        description: "Attendance state does not permit this event.",
+        description: "The requested operation conflicts with existing data or state.",
         content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } },
       },
       Unavailable: {

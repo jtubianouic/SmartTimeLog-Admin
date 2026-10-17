@@ -7,7 +7,7 @@ import type { Tables } from "@/types/database";
 
 export type Employee = Pick<
   Tables<"employee">,
-  "employee_id" | "username" | "firstname" | "lastname" | "hq_id" | "created_at" | "updated_at" | "isDeleted"
+  "employee_id" | "username" | "firstname" | "lastname" | "hq_id" | "created_at" | "updated_at" | "isDeleted" | "isPending"
 >;
 export type Headquarters = Tables<"headquarters">;
 export type Timelog = Tables<"employee_timelogs">;
@@ -32,14 +32,18 @@ export function employeeName(employee: Employee | null) {
   return fullName || employee.username;
 }
 
-export async function getEmployees(search = "") {
+export async function getEmployees(search = "", status?: "active" | "pending" | "removed") {
   await requireAdmin();
   const supabase = createAdminClient();
   let query = supabase
     .from("employee")
-    .select("employee_id, username, firstname, lastname, hq_id, created_at, updated_at, isDeleted")
+    .select("employee_id, username, firstname, lastname, hq_id, created_at, updated_at, isDeleted, isPending")
     .order("lastname", { ascending: true })
     .limit(100);
+
+  if (status === "pending") query = query.eq("isDeleted", false).eq("isPending", true);
+  if (status === "removed") query = query.eq("isDeleted", true);
+  if (status === "active") query = query.eq("isDeleted", false).or("isPending.is.null,isPending.eq.false");
 
   if (search.trim()) {
     const safeSearch = search.trim().replaceAll(/[,%()]/g, "");
@@ -138,7 +142,7 @@ export async function getDashboardData() {
   const todayLogs = timelogs.filter((log) => log.timestamp?.startsWith(today));
 
   return {
-    employeeCount: employees.filter((employee) => employee.isDeleted !== true).length,
+    employeeCount: employees.filter((employee) => employee.isDeleted !== true && employee.isPending !== true).length,
     headquartersCount: headquarters.filter((hq) => !hq.isDeleted).length,
     todayClockIns: todayLogs.filter((log) => log.log_type.toLowerCase().includes("in")).length,
     todayClockOuts: todayLogs.filter((log) => log.log_type.toLowerCase().includes("out")).length,

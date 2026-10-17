@@ -2,6 +2,7 @@
 
 import { hash } from "bcryptjs";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -72,7 +73,7 @@ export async function createEmployee(
         parsed.data.employee_id
         ? supabase
           .from("employee")
-              .select("employee_id, isDeleted")
+              .select("employee_id, isDeleted, isPending")
           .eq("employee_id", parsed.data.employee_id)
           .maybeSingle()
         : Promise.resolve({ data: null, error: null }),
@@ -83,7 +84,7 @@ export async function createEmployee(
   if (employeeResult.error) return { status: "error", message: "Unable to validate employee." };
   if (duplicate) return { status: "error", errors: { username: ["Username is already registered."] } };
   if (!headquarters) return { status: "error", errors: { hq_id: ["Select an active headquarters."] } };
-  if (parsed.data.employee_id && (!employeeResult.data || employeeResult.data.isDeleted === true)) {
+  if (parsed.data.employee_id && (!employeeResult.data || employeeResult.data.isDeleted === true || employeeResult.data.isPending === true)) {
     return { status: "error", message: "Employee is no longer active." };
   }
 
@@ -96,7 +97,7 @@ export async function createEmployee(
   const password = parsed.data.password ? { password: await hash(parsed.data.password, 12) } : {};
   const { error } = parsed.data.employee_id
     ? await supabase.from("employee").update({ ...employee, ...password }).eq("employee_id", parsed.data.employee_id)
-    : await supabase.from("employee").insert({ ...employee, ...password, password: password.password! });
+    : await supabase.from("employee").insert({ ...employee, ...password, password: password.password!, isPending: false });
 
   if (error) return { status: "error", message: parsed.data.employee_id ? "Unable to update employee." : "Unable to register employee." };
   revalidatePath("/admin");
@@ -104,6 +105,27 @@ export async function createEmployee(
   revalidatePath("/admin/timelogs");
   revalidatePath("/admin/summaries");
   return { status: "success", message: parsed.data.employee_id ? "Employee updated successfully." : "Employee registered successfully." };
+}
+
+export async function approveEmployee(formData: FormData) {
+  await requireAdmin();
+  const id = z.coerce.number().int().positive().safeParse(formData.get("employee_id"));
+  if (!id.success) throw new Error("Invalid employee request.");
+
+  const { data, error } = await createAdminClient()
+    .from("employee")
+    .update({ isPending: false })
+    .eq("employee_id", id.data)
+    .eq("isPending", true)
+    .eq("isDeleted", false)
+    .select("employee_id")
+    .maybeSingle();
+  if (error) throw new Error("Unable to approve employee.");
+  if (!data) throw new Error("Employee is no longer pending.");
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/employees");
+  redirect("/admin/employees");
 }
 
 export async function setEmployeeDeleted(formData: FormData) {
