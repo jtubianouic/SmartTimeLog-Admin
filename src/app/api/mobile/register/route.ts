@@ -1,6 +1,8 @@
 import { hash } from "bcryptjs";
 import { z } from "zod";
 import { apiError, noStoreHeaders, parseJson } from "@/lib/mobile-api/http";
+import { notifyPendingRegistration } from "@/lib/notifications/pending-registration";
+import { createRegistrationApprovalToken } from "@/lib/registration-approval";
 import { isValidRegistrationAccessToken } from "@/lib/registration-access-token";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -54,10 +56,17 @@ export async function POST(request: Request) {
         registration_access_token: input.registrationToken,
         isPending: true,
       })
-      .select("employee_id")
+      .select("employee_id, created_at")
       .single();
     if (insertError?.code === "23505") return apiError(409, "Username is already registered.");
     if (insertError || !employee) return apiError(503, "Unable to register employee.");
+
+    try {
+      const approvalToken = createRegistrationApprovalToken(employee.employee_id, employee.created_at!);
+      await notifyPendingRegistration(approvalToken);
+    } catch (error) {
+      console.error("Pending registration email failed:", error);
+    }
 
     return Response.json({
       ok: true,

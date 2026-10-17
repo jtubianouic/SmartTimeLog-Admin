@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   hashPassword: vi.fn(),
   createClient: vi.fn(),
   insertEmployee: vi.fn(),
+  notifyPendingRegistration: vi.fn(),
 }));
 
 vi.mock("server-only", () => ({}));
@@ -15,6 +16,8 @@ vi.mock("@/lib/mobile-api/http", () => ({
   parseJson: async (request: Request, schema: { safeParse: (value: unknown) => unknown }) => schema.safeParse(await request.json()),
 }));
 vi.mock("@/lib/registration-access-token", () => ({ isValidRegistrationAccessToken: mocks.validateToken }));
+vi.mock("@/lib/registration-approval", () => ({ createRegistrationApprovalToken: () => "approval-token" }));
+vi.mock("@/lib/notifications/pending-registration", () => ({ notifyPendingRegistration: mocks.notifyPendingRegistration }));
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: mocks.createClient }));
 
 import { POST } from "./route";
@@ -39,7 +42,8 @@ function request() {
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.hashPassword.mockResolvedValue("bcrypt-hash");
-  mocks.insertEmployee.mockReturnValue({ select: () => ({ single: async () => ({ data: { employee_id: 42 }, error: null }) }) });
+  mocks.notifyPendingRegistration.mockResolvedValue(undefined);
+  mocks.insertEmployee.mockReturnValue({ select: () => ({ single: async () => ({ data: { employee_id: 42, created_at: "2026-10-17T00:00:00Z" }, error: null }) }) });
   mocks.createClient.mockReturnValue({
     from: (table: string) => {
       if (table === "headquarters") return {
@@ -62,6 +66,7 @@ describe("POST /api/mobile/register", () => {
     expect(response.status).toBe(401);
     expect(mocks.createClient).not.toHaveBeenCalled();
     expect(mocks.insertEmployee).not.toHaveBeenCalled();
+    expect(mocks.notifyPendingRegistration).not.toHaveBeenCalled();
   });
 
   it("rechecks token expiry after hashing and before insertion", async () => {
@@ -71,6 +76,7 @@ describe("POST /api/mobile/register", () => {
 
     expect(response.status).toBe(401);
     expect(mocks.insertEmployee).not.toHaveBeenCalled();
+    expect(mocks.notifyPendingRegistration).not.toHaveBeenCalled();
   });
 
   it("creates an employee with a hashed password and returns a safe response", async () => {
@@ -90,5 +96,23 @@ describe("POST /api/mobile/register", () => {
     expect(result.isPending).toBe(true);
     expect(result.employee).toMatchObject({ employeeId: 42, username: body.username });
     expect(JSON.stringify(result)).not.toContain(body.plainPassword);
+    expect(mocks.notifyPendingRegistration).toHaveBeenCalledOnce();
+    expect(mocks.notifyPendingRegistration).toHaveBeenCalledWith("approval-token");
+  });
+
+  it("keeps a saved registration pending when email delivery fails", async () => {
+    mocks.validateToken.mockResolvedValue(true);
+    mocks.notifyPendingRegistration.mockRejectedValue(new Error("Email delivery failed"));
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    try {
+      const response = await POST(request());
+
+      expect(response.status).toBe(201);
+      expect(mocks.notifyPendingRegistration).toHaveBeenCalledOnce();
+      expect(log).toHaveBeenCalledWith("Pending registration email failed:", expect.any(Error));
+    } finally {
+      log.mockRestore();
+    }
   });
 });

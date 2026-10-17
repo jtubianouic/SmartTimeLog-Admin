@@ -39,7 +39,7 @@ async function addLogoToQr(qrCode: string) {
   return canvas.toDataURL("image/png");
 }
 
-export function RegistrationQr() {
+export function RegistrationQr({ compact = false }: { compact?: boolean }) {
   const [current, setCurrent] = useState<RegistrationQrResponse | null>(null);
   const [error, setError] = useState(false);
 
@@ -96,14 +96,21 @@ export function RegistrationQr() {
   }
 
   return (
-    <section className="border-t border-white/8 px-5 py-5" aria-label="Employee registration QR code">
+    <section
+      className={compact ? "glass-panel rounded-lg px-5 py-5 sm:px-6" : "border-t border-white/8 px-5 py-5"}
+      aria-label="Employee registration QR code"
+    >
       <h2 className="text-sm font-semibold text-white">Employee registration QR code</h2>
-      <p className="mt-2 text-xs text-slate-400">Scan this code during employee registration. It refreshes every 30 minutes.</p>
+      <p className="mt-2 text-xs leading-5 text-slate-400">Scan this code during employee registration. It refreshes every 30 minutes.</p>
       {current ? (
-        <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div className={`mt-4 flex flex-col gap-4 sm:flex-row sm:items-center ${compact ? "sm:gap-5" : ""}`}>
           {/* The image is a server-generated data URL, not a remote image. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img alt="Current employee registration QR code" className="size-52 rounded-md bg-white p-2" src={current.qrCode} />
+          <img
+            alt="Current employee registration QR code"
+            className={`${compact ? "size-40" : "size-52"} shrink-0 rounded-md bg-white p-2`}
+            src={current.qrCode}
+          />
           <div className="flex flex-col items-start gap-3">
             <p className="text-xs text-slate-400">Expires {new Date(current.expiresAt).toLocaleString()}</p>
             <button className="focus-ring flex h-10 items-center gap-2 rounded-md border border-white/10 px-4 text-xs font-medium text-emerald-200 hover:border-emerald-300/50 hover:text-white" onClick={downloadQr} type="button"><Download className="size-4" />Download QR</button>

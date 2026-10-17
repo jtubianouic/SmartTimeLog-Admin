@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ShieldCheck } from "lucide-react";
 import { LoginForm } from "@/components/auth/login-form";
 import { BrandIcon } from "@/components/brand-icon";
+import { RegistrationQr } from "@/components/employees/registration-qr";
 
 export const metadata: Metadata = { title: "Admin sign in" };
 
@@ -28,21 +29,24 @@ export default function LoginPage() {
       </section>
 
       <section className="flex min-h-screen items-center justify-center px-5 py-12 sm:px-10">
-        <div className="glass-panel rise-in w-full max-w-md rounded-lg p-6 sm:p-9">
-          <div className="flex items-center gap-3 lg:hidden">
-            <BrandIcon className="size-7 object-contain" priority />
-            <span className="font-semibold">SmartTimeLog</span>
+        <div className="rise-in w-full max-w-md space-y-5">
+          <div className="glass-panel rounded-lg p-6 sm:p-9">
+            <div className="flex items-center gap-3 lg:hidden">
+              <BrandIcon className="size-7 object-contain" priority />
+              <span className="font-semibold">SmartTimeLog</span>
+            </div>
+            <div className="mt-12 lg:mt-0">
+              <span className="grid size-10 place-items-center rounded-md bg-emerald-300/10">
+                <ShieldCheck className="size-5 text-emerald-300" />
+              </span>
+              <h2 className="mt-6 text-2xl font-semibold text-white">Admin sign in</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-400">
+                Use an account with the SmartTimeLog administrator role.
+              </p>
+            </div>
+            <LoginForm />
           </div>
-          <div className="mt-12 lg:mt-0">
-            <span className="grid size-10 place-items-center rounded-md bg-emerald-300/10">
-              <ShieldCheck className="size-5 text-emerald-300" />
-            </span>
-            <h2 className="mt-6 text-2xl font-semibold text-white">Admin sign in</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-400">
-              Use an account with the SmartTimeLog administrator role.
-            </p>
-          </div>
-          <LoginForm />
+          <RegistrationQr compact />
         </div>
       </section>
     </main>
