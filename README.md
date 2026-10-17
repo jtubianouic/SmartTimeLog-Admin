@@ -51,7 +51,7 @@ The interface uses Sora and IBM Plex Mono through `next/font`.
 
 ## Employee registration API
 
-An administrator can open **Employees → Register employee** to display the current registration QR code. The authenticated `GET /api/admin/registration-qr` endpoint supplies that code and its expiry. Scan the QR to obtain its 64-character token, then send it to `POST /api/mobile/register`:
+An administrator can open **Employees → Register employee** to display the current registration QR code. The authenticated `GET /api/admin/registration-qr` endpoint supplies that code and its expiry. `GET /api/mobile/headquarters` lists active headquarters as `hq_id` and `hq_name` only, for the registration form. Scan the QR to obtain its 64-character token, then send it to `POST /api/mobile/register`:
 
 ```json
 {

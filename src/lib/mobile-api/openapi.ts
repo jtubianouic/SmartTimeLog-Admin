@@ -43,6 +43,24 @@ export const mobileOpenApiDocument = {
     { name: "AI" },
   ],
   paths: {
+    "/api/mobile/headquarters": {
+      get: {
+        tags: ["Registration"],
+        summary: "List active headquarters for employee registration",
+        description: "Public list containing only each active headquarters ID and name. No location coordinates or administrative fields are returned.",
+        operationId: "listRegistrationHeadquarters",
+        responses: {
+          "200": {
+            description: "Active headquarters, ordered by name.",
+            content: { "application/json": { schema: {
+              type: "array",
+              items: { $ref: "#/components/schemas/HeadquartersOption" },
+            } } },
+          },
+          "503": { $ref: "#/components/responses/Unavailable" },
+        },
+      },
+    },
     "/api/admin/registration-qr": {
       get: {
         tags: ["Registration"],
@@ -209,6 +227,15 @@ export const mobileOpenApiDocument = {
       },
     },
     schemas: {
+      HeadquartersOption: {
+        type: "object",
+        additionalProperties: false,
+        required: ["hq_id", "hq_name"],
+        properties: {
+          hq_id: { type: "integer" },
+          hq_name: { type: ["string", "null"] },
+        },
+      },
       RegistrationQrResponse: {
         type: "object",
         required: ["qrCode", "expiresAt"],
