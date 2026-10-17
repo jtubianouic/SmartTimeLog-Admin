@@ -1,5 +1,4 @@
 import QRCode from "qrcode";
-import { requireAdmin } from "@/lib/auth/require-admin";
 import { getRegistrationAccessToken } from "@/lib/registration-access-token";
 
 export const runtime = "nodejs";
@@ -7,8 +6,6 @@ export const runtime = "nodejs";
 const headers = { "Cache-Control": "no-store" };
 
 export async function GET() {
-  await requireAdmin();
-
   try {
     const { token, expiresAt } = await getRegistrationAccessToken();
     const qrCode = await QRCode.toDataURL(token, {

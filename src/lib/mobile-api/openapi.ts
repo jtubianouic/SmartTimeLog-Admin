@@ -65,14 +65,13 @@ export const mobileOpenApiDocument = {
       get: {
         tags: ["Registration"],
         summary: "Get the current employee registration QR code",
-        description: "Requires an authenticated administrator session. Returns a PNG data URL whose QR content is the current 30-minute registration token. Creates or rotates the singleton database token when needed.",
+        description: "Public endpoint. Returns a PNG data URL whose QR content is the current 30-minute registration token. Creates or rotates the singleton database token when needed. Registration still requires administrator approval before login.",
         operationId: "getRegistrationQr",
         responses: {
           "200": {
             description: "Current registration QR code and expiry.",
             content: { "application/json": { schema: { $ref: "#/components/schemas/RegistrationQrResponse" } } },
           },
-          "307": { description: "Administrator session is missing; redirects to login." },
           "503": { $ref: "#/components/responses/Unavailable" },
         },
       },
